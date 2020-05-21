@@ -176,7 +176,7 @@
                 scene.add(floor);
 
 
-                loader.load('/src/models/mobius_2.stl', function (geometry){
+                loader.load('./src/models/mobius_2.stl', function (geometry){
                     var material = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0xFFFFFF, shininess:
                     150 } );
                     var mobius = new THREE.Mesh( geometry, material );
