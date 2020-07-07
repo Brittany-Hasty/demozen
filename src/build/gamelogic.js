@@ -1,20 +1,13 @@
 import * as THREE from './three.module.js';
 import { PointerLockControls } from './PointerLockControls.js';
 import { STLLoader } from './STLLoader.js';
+// import { PDBLoader } from './PDBLoader.js';
         
-var camera, scene, renderer, controls;
-
+var camera, scene, renderer, controls, mobius, skybox, ground, boundingBox, raycasternegY;
 var objects = [];
-
-var boundingBox;
-// var wireframe;
-var movementRay;
-// var raycasterposX;
-// var raycasterposY;
-// var raycasterposZ;
-// var raycasternegX;
-var raycasternegY;
-// var raycasternegZ;
+var stars = [];
+var solarSystem = [];
+var denizen = [];
 
 var moveForward = false;
 var moveBackward = false;
@@ -29,24 +22,117 @@ var velocity = new THREE.Vector3();
 var direction = new THREE.Vector3();
 var vertex = new THREE.Vector3();
 var color = new THREE.Color();
-var loader = new STLLoader();
+var stlloader = new STLLoader();
 
 init();
 animate();
 
 function init() {
-
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+    
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.y = 10;
-
+    
     scene = new THREE.Scene();
     scene.background = new THREE.Color('black');
-    // scene.background = new THREE.Color('white');
-    // scene.fog = new THREE.Fog(0x000000, 0, 750);
-    // var playerLight = new THREE.SpotLight();
-    var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
-    light.position.set(0.5, 1, 0.75);
+
+    var light = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
+    light.position.set(0, 1000, 0);
     scene.add(light);
+
+
+    // objects to be collected through puzzles or minigames
+    // inspired by the corresponding body's characteristics
+
+    
+    // main source of light, something involving lightbulbs?
+    var sun;
+    // var sunGrid = buildSphereGrid(182, 0xffff00, [-1000, 0, -1050]);
+    // scene.add(sunGrid);
+
+
+    // closest to the sun, fastest body, maybe a race of some sort?
+    var mercury;
+    // var mercuryGrid = buildSphereGrid(2, 0xffff00, [-1000, 0, ]);
+    // scene.add(mercuryGrid);
+
+
+    // runaway greenhouse effect, add a greenhouse and a few potted plants
+    // then add a shovel that can be equipped and used to dig them up
+    var venus;
+    // var venusGrid = buildSphereGrid(5, 0xffff00, [-1000, 0, ]);
+    // scene.add(venusGrid);
+
+
+    // only planet with liquid water and life
+    // Inside a fish's mouth in some pond?
+    // Or on a fishing pole as bait nearby?
+    var earth;
+    // var earthGrid = buildSphereGrid(5, 0xffff00, [-1000, 0, ]);
+    // scene.add(earthGrid);
+
+
+    // last item to be collected
+    // denizen will say some dialogue:
+    // "Oh dear, I hate to ask for your help again, 
+    // but there seems to be one more piece missing...
+    // Could you bring me the Moon?"
+    // Maybe put inside of a cheese wheel to reference the old myth/wive's tale
+        // that the moon is made of cheese
+    var moon;
+    // var moonGrid = buildSphereGrid(1.5, 0xffff00, [-999.93, 0, ]);
+    // scene.add(moonGrid);
+
+
+    // the 'red planet', inhabited by "Opportunity", NASA's rover
+    // make mars one of the rock samples the rover is carrying
+    // maybe reference "My battery is low and it's getting dark."
+        // aha! make the player give the rover new batteries and turn on a light
+    var mars;    
+    // var marsGrid = buildSphereGrid(3, 0xffff00, [-1000, 0, ]);
+    // scene.add(marsGrid);
+
+
+    // big gas giant, big red spot
+    // field of tornados, inside a tornado with a red spot 
+        // add patterns onto other tornados as well so its not as obvious
+    var jupiter;
+    // var jupiterGrid = buildSphereGrid(60, 0xffff00, [-1000, 0, ]);
+    // scene.add(jupiterGrid);
+
+
+    // well-known for it's many rings, maybe a circle of rocks with one missing?
+    var saturn;
+    // var saturnGrid = buildSphereGrid(50, 0xffff00, [-1000, 0, ]);
+    // scene.add(saturnGrid);
+
+
+    // it's upside down compared to the other planets
+    // a table with multiple cups on top
+        // one is upside-down with the planet inside
+    var uranus;
+    // var uranusGrid = buildSphereGrid(20, 0xffff00, [-1000, 0, ]);
+    // scene.add(uranusGrid);
+
+
+    // blue, with the 'great dark spot'
+    // have the player choose a blueberry from a fruit stand 
+    var neptune;
+    // var neptuneGrid = buildSphereGrid(20, 0xffff00, [-1000, 0, ]);
+    // scene.add(neptuneGrid);
+
+
+
+    // tiny, not considered a planet anymore, has a heart on the surface
+    // have the player match two objects together, have a heart float up after
+    var pluto;
+    // var plutoGrid = buildSphereGrid(1, 0xffff00, [-1000, 0, 0]);
+    // scene.add(plutoGrid);
+
+
+2222222222222222222
+
+
+
 
     controls = new PointerLockControls(camera, document.body);
 
@@ -135,31 +221,26 @@ function init() {
         
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
-    
 
-
-
-
-
-
-
-
-
-
-
-    
     raycasternegY = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 20);
-    // raycasterposY = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, 1, 0), 0, 20);
-    // raycasternegX = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(- 1, 0, 0), 0, 20);
-    // raycasterposX = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(1, 0, 0), 0, 20);
-    // raycasternegZ = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, 0, - 1), 0, 20);
-    // raycasterposZ = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, 0, 1), 0, 20);
 
+    ground = new THREE.Group();
+    scene.add(ground);
 
-    movementRay = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, 10);
-
-
-
+    var materialArray = [];
+    materialArray.push(new THREE.MeshBasicMaterial({ color: 0x000000 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ color: 0x000000 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ color: 0x000000 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ color: 0x000000 }));
+    materialArray.push(new THREE.MeshBasicMaterial({ color: 0x000000 }));
+    var image = new THREE.TextureLoader().load('src/images/skybox.png');
+    materialArray.push(new THREE.MeshBasicMaterial({ map: image }));
+    for (var i = 0; i < 6; i++)
+        materialArray[i].side = THREE.BackSide;
+    var skyboxMaterial = materialArray;
+    var skyboxGeom = new THREE.CubeGeometry(9000, 9000, 9000, 1, 1, 1);
+    skybox = new THREE.Mesh(skyboxGeom, skyboxMaterial);
+    scene.add(skybox);
 
 
 
@@ -170,52 +251,9 @@ function init() {
 
     
     // floor
-    
-    var floorGeometry = new THREE.PlaneBufferGeometry(2000, 2000, 100, 100);
-    floorGeometry.rotateX(- Math.PI / 2);
-    
-    // vertex displacement
-    
-    // var position = floorGeometry.attributes.position;
-    console.log(floorGeometry.attributes.position);
-    // for (var i = 0, l = position.count; i < l; i++) {
-        
-    //     vertex.fromBufferAttribute(position, i);
-        
-    //     vertex.x += Math.random() * 20 - 10;
-    //     vertex.y += Math.random() * 2;
-    //     vertex.z += Math.random() * 20 - 10;
-        
-    //     position.setXYZ(i, vertex.x, vertex.y, vertex.z);
-        
-    // }
-    
-    // floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
-    
-    // position = floorGeometry.attributes.position;
-    // var colors = [];
-    
-    // for (var i = 0, l = position.count; i < l; i++) {
-        
-    //     color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-    //     colors.push(color.r, color.g, color.b);
-        
-    // }
-    
-    // floorGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    
-    // var floorMaterial = new THREE.MeshNormalMaterial(
-    //     // { vertexColors: true }
-    //     );
-    
-    var floorMaterial = new THREE.LineBasicMaterial({
-        color: 0x0400ff,
-    });
-    
-    // floorGeometry.computeLineDistances();
 
-    var floor = new THREE.Line(floorGeometry, floorMaterial);
-    scene.add(floor);
+    var gridHelper = new THREE.GridHelper(10000, 500, 0x0400ff, 0x0400ff);
+    scene.add(gridHelper);
     
 
 
@@ -228,7 +266,7 @@ function init() {
 
 
     
-    loader.load('./src/models/mobius_2.stl', function (object){
+    stlloader.load('./src/models/mobius_2.stl', function (object){
         var material = new THREE.MeshNormalMaterial();
         object.computeBoundingBox();
         object.computeVertexNormals();
@@ -255,20 +293,18 @@ function init() {
         geometry.mergeVertices()
         geometry.computeVertexNormals();
 
-        var mobius = new THREE.Mesh(geometry, material);
+        mobius = new THREE.Mesh(geometry, material);
 
-        mobius.position.set( 0, 25, -50 );
+        mobius.position.set( 0, -1000, 0 );
         mobius.rotation.set( (Math.PI / 2), 0, 0 );
-        mobius.scale.set( 1, 1, 1 );
+        mobius.scale.set( 38, 38, 38 );
 
 
         
         mobius.castShadow = true;
         mobius.receiveShadow = true;
         
-        
-        objects.push(mobius);
-        scene.add( mobius );
+        ground.add(mobius);
     });
 
 
@@ -283,38 +319,20 @@ function init() {
 
 
 
+    boundingBox = new THREE.BoxGeometry(10, 10, 10);
 
-    boundingBox = new THREE.BoxGeometry(15, 15, 15);
-    // boundingBox = new THREE.WireframeGeometry(boundingBox);
-    // boundingBox.position = (camera.position.x, 20, camera.position.z);
-    // boundingBox.position.y += 10;
-
-    // var material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-    // boundingBox = new THREE.LineSegments(boundingBox, material);
-    // boundingBox.computeLineDistances();
-
-    // var matLineBasic = new THREE.LineBasicMaterial({ color: 0xff0000 });
-    // matLineDashed = new THREE.LineDashedMaterial({ scale: 2, dashSize: 1, gapSize: 1 });
-
-    // wireframe = new THREE.LineSegments(geo, matLineBasic);
-    // wireframe.computeLineDistances();
-    // wireframe.visible = true;
-    // wireframe1.position = camera.position;
     
     var material = new THREE.MeshBasicMaterial({
         wireframe: true,
         // visible: false,
     });
 
-    // material.transparent = true;
-    // material.opacity = 5.0;
     boundingBox = new THREE.Mesh( boundingBox, material );
     boundingBox.position.x = camera.position.x;
     boundingBox.position.y = camera.position.y;
     boundingBox.position.z = camera.position.z;
 
     scene.add(boundingBox);
-    // scene.add(wireframe);
 
 
 
@@ -340,45 +358,43 @@ function init() {
     // objects.push(klein);
 
 
+    // var light = new THREE.PointLight(0xff0000, 1, 100);
+    // light.position.set(50, 50, 50);
+    // scene.add(light);
+
+
+
 
 
 
 
     // objects
     
-    var boxGeometry = new THREE.BoxBufferGeometry(20, 20, 20);
-    // boxGeometry = boxGeometry.toNonIndexed(); // ensure each face has unique vertices
-    
-    // position = boxGeometry.attributes.position;
-    // colors = [];
-
-    // for (var i = 0, l = position.count; i < l; i++) {
-
-    //     color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-    //     colors.push(color.r, color.g, color.b);
-
-    // }
-
-    // boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    var boxGeometry = new THREE.TorusBufferGeometry(20, 10);
 
     for (var i = 0; i < 500; i++) {
 
         var boxMaterial = new THREE.MeshNormalMaterial({ 
-            specular: 0xffffff, 
+            // specular: 0xffffff, 
             flatShading: true, 
-            // vertexColors: true 
         });
-        // boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 
         var box = new THREE.Mesh(boxGeometry, boxMaterial);
-        box.position.x = Math.floor(Math.random() * 20 - 10) * 100;
-        box.position.y = Math.floor(Math.random() * 20) * 20 + 10;
-        box.position.z = Math.floor(Math.random() * 20 - 10) * 100;
+        box.position.x = Math.floor(Math.random() * 20 - 10) * 200;
+        box.position.y = Math.floor(Math.random() * 20) * 20 + 50;
+        box.position.z = Math.floor(Math.random() * 20 - 10) * 200;
 
-        scene.add(box);
-        objects.push(box);
+        // scene.add(box);
+        // objects.push(box);
+        // rename objects later
+
 
     }
+
+
+
+
+
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -398,13 +414,25 @@ function onWindowResize() {
 
 }
 
+function buildSphereGrid(radius, color, position) {
+    var geometry = new THREE.SphereGeometry(radius, 22, 22);
+    var material = new THREE.MeshBasicMaterial({
+        color: color,
+        wireframe: true,
+    });
+    var sphereGrid = new THREE.Mesh(geometry, material);
+    sphereGrid.position.x = position[0];
+    sphereGrid.position.y = position[1];
+    sphereGrid.position.z = position[2];
+    return sphereGrid;
+}
+
 function animate() {
 
     window.playerLocation = camera.position;
-    boundingBox.position.x = camera.position.x;
-    boundingBox.position.y = camera.position.y;
-    boundingBox.position.z = camera.position.z;
 
+    // scene.mobius.rotation.x += 1;
+    ground.rotation.y += 0.01;
 
 
 
@@ -432,11 +460,7 @@ function animate() {
         // console.log(boxIntersections, boxIntersections.length);
         
         // scene.add(new THREE.ArrowHelper(raycasternegY.ray.direction, raycasternegY.ray.origin, 300, 0xff0000));
-        // scene.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, 300, 0xff0000));
-        
-        
-        
-        // console.log(camera.position, movementRay.ray.origin)
+
         
         
         var time = performance.now();
@@ -452,37 +476,14 @@ function animate() {
         direction.z = Number(moveForward) - Number(moveBackward);
         direction.x = Number(moveRight) - Number(moveLeft);
         direction.normalize(); // this ensures consistent movements in all directions
-        
-        
-
-
-
-
-
-
-        movementRay.ray.origin.copy(camera.position);
-        
-        // direction.x >= 0 ? movementRay.ray.direction.x += 10 : movementRay.ray.direction.x -= 10;
-        // direction.y >= 0 ? movementRay.ray.direction.y += 10 : movementRay.ray.direction.y -= 10;
-        // direction.z >= 0 ? movementRay.ray.direction.z += 10 : movementRay.ray.direction.z -= 10;
-
-
-
-        
-        // movementRay.ray.direction = direction * velocity;
-        var objectIntercept = movementRay.intersectObjects(objects);
-        var collision = objectIntercept.length > 0;
-        // console.log(collision);
-    
-        // scene.add(new THREE.ArrowHelper((camera.position.x + (), camera.position.y + (), camera.position.z + ())), movementRay.ray.origin, 20, 0xff0000));
-        
-        
-        
 
 
         let movementSpeed = 500.0;
         if(sprint) movementSpeed += 500.0;
-        if(crouch) camera.position.y -= 5.0;
+        if(crouch){
+            camera.position.y -= 5.0;
+            movementSpeed /= 2;
+        } 
 
         if (moveForward || moveBackward) velocity.z -= direction.z * movementSpeed * delta;
         if (moveLeft || moveRight) velocity.x -= direction.x * movementSpeed * delta;
@@ -492,58 +493,30 @@ function animate() {
 
         if (negYObject === true) {
             velocity.y = Math.max(0, velocity.y);
+            canJump = true;
         }
-        // if (negXObject === true) {
-        //     velocity.x = Math.max(0, velocity.x);
-        // }
-        // if (negZObject === true) {
-        //     velocity.z = Math.max(0, velocity.z);
-        // }
-
-
-        // if (posYObject === true) {
-        //     velocity.y = Math.min(0, velocity.y);
-        // }
-        // if (posXObject === true) {
-        //     velocity.x = Math.min(0, velocity.y);
-        // }
-        // if (posZObject === true) {
-        //     velocity.z = Math.min(0, velocity.y);
-        // }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         controls.moveRight(- velocity.x * delta);
         controls.moveForward(- velocity.z * delta);
 
         controls.getObject().position.y += (velocity.y * delta); // new behavior
-
+        
         if (controls.getObject().position.y < 10) {
-
+            
             velocity.y = 0;
             controls.getObject().position.y = 10;
-
+            
             canJump = true;
-
+            
         }
-
+        
         prevTime = time;
-
+        
     }
-    // console.log(camera.position);
+    
+    boundingBox.position.y = camera.position.y;
+    boundingBox.position.x = camera.position.x;
+    boundingBox.position.z = camera.position.z;
+
     renderer.render(scene, camera);
-    // var tmpVel = velocity;
-    // if (tmpVel.x < 0.0001)
-    // console.log();
 }
