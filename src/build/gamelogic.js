@@ -129,11 +129,6 @@ function init() {
     // scene.add(plutoGrid);
 
 
-2222222222222222222
-
-
-
-
     controls = new PointerLockControls(camera, document.body);
 
     document.body.addEventListener('click', function () {
