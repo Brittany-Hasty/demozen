@@ -4,6 +4,8 @@ import { STLLoader } from './STLLoader.js';
 // import { PDBLoader } from './PDBLoader.js';
         
 var camera, scene, renderer, controls, mobius, skybox, ground, boundingBox, raycasternegY;
+var sunGrid, mercuryGrid, venusGrid, earthGrid, moonGrid, marsGrid, jupiterGrid, 
+saturnGrid, saturnRings, uranusGrid, uranusRings, neptuneGrid, plutoGrid;
 var objects = [];
 var stars = [];
 var solarSystem = [];
@@ -46,87 +48,126 @@ function init() {
     
     // main source of light, something involving lightbulbs?
     var sun;
-    // var sunGrid = buildSphereGrid(182, 0xffff00, [-1000, 0, -1050]);
-    // scene.add(sunGrid);
+    sunGrid = buildSphereGrid(556.8, 0xff8800, [575, 556.8, 1000]);
+    scene.add(sunGrid);
 
 
     // closest to the sun, fastest body, maybe a race of some sort?
     var mercury;
-    // var mercuryGrid = buildSphereGrid(2, 0xffff00, [-1000, 0, ]);
-    // scene.add(mercuryGrid);
-
-
+    mercuryGrid = buildSphereGrid(1.9516, 0xbb9665, [-50, 556.8, 1000]);
+    scene.add(mercuryGrid);
+    
+    
     // runaway greenhouse effect, add a greenhouse and a few potted plants
     // then add a shovel that can be equipped and used to dig them up
     var venus;
-    // var venusGrid = buildSphereGrid(5, 0xffff00, [-1000, 0, ]);
-    // scene.add(venusGrid);
-
-
+    venusGrid = buildSphereGrid(4.84, 0xe5ab60, [-100, 556.8, 1000]);
+    // venusGrid.rotation.z = 2.05;
+    scene.add(venusGrid);
+    
+    
     // only planet with liquid water and life
     // Inside a fish's mouth in some pond?
     // Or on a fishing pole as bait nearby?
+    // growing on a tree?
     var earth;
-    // var earthGrid = buildSphereGrid(5, 0xffff00, [-1000, 0, ]);
-    // scene.add(earthGrid);
-
-
+    earthGrid = buildSphereGrid(5.096, 0x00ad15, [-150, 556.8, 1000]);
+    // earthGrid.rotation.z = 0.41;
+    scene.add(earthGrid);
+    
     // last item to be collected
     // denizen will say some dialogue:
     // "Oh dear, I hate to ask for your help again, 
     // but there seems to be one more piece missing...
     // Could you bring me the Moon?"
     // Maybe put inside of a cheese wheel to reference the old myth/wive's tale
-        // that the moon is made of cheese
+    // that the moon is made of cheese
     var moon;
-    // var moonGrid = buildSphereGrid(1.5, 0xffff00, [-999.93, 0, ]);
-    // scene.add(moonGrid);
-
-
+    moonGrid = buildSphereGrid(1.3896, 0xb2bdc6, [-150, 556.8, 1000], 10);
+    // moonGrid.rotation.z = 0.12;
+    scene.add(moonGrid);
+    
+    // moonOrbit = new THREE.Group();
+    // moonOrbit.add(moonGrid);
+    // moonOrbit.position.set(earthGrid.position);
+    
+    
     // the 'red planet', inhabited by "Opportunity", NASA's rover
     // make mars one of the rock samples the rover is carrying
     // maybe reference "My battery is low and it's getting dark."
-        // aha! make the player give the rover new batteries and turn on a light
+    // aha! make the player give the rover new batteries and turn on a light
     var mars;    
-    // var marsGrid = buildSphereGrid(3, 0xffff00, [-1000, 0, ]);
-    // scene.add(marsGrid);
-
-
+    marsGrid = buildSphereGrid(2.7116, 0xb58f72, [-200, 556.8, 1000]);
+    // marsGrid.rotation.z = 0.44;
+    scene.add(marsGrid);
+    
+    
     // big gas giant, big red spot
     // field of tornados, inside a tornado with a red spot 
-        // add patterns onto other tornados as well so its not as obvious
+    // add patterns onto other tornados as well so its not as obvious
     var jupiter;
-    // var jupiterGrid = buildSphereGrid(60, 0xffff00, [-1000, 0, ]);
-    // scene.add(jupiterGrid);
-
-
+    jupiterGrid = buildSphereGrid(55.92, 0xbd7f5a, [-300, 556.8, 1000]);
+    // jupiterGrid.rotation.z = 0.054;
+    scene.add(jupiterGrid);
+    
+    
     // well-known for it's many rings, maybe a circle of rocks with one missing?
     var saturn;
-    // var saturnGrid = buildSphereGrid(50, 0xffff00, [-1000, 0, ]);
-    // scene.add(saturnGrid);
-
-
+    saturnGrid = buildSphereGrid(46.6, 0xfaf8b4, [-500, 556.8, 1000]);
+    // saturnGrid.rotation.z = 0.47;
+    var geometry = new THREE.RingGeometry(75, 125, 32);
+    var material = new THREE.MeshBasicMaterial({
+        color: 0xfaf8b4, 
+        // opacity: 0.1,
+        side: THREE.DoubleSide,
+        wireframe: true,
+    });
+    saturnRings = new THREE.Mesh(geometry, material);
+    saturnRings.position.set(-500, 556.8, 1000);
+    saturnRings.rotation.x = 1.57;
+    scene.add(saturnRings);
+    scene.add(saturnGrid);
+    
+    
     // it's upside down compared to the other planets
     // a table with multiple cups on top
-        // one is upside-down with the planet inside
+    // one is upside-down with the planet inside
     var uranus;
-    // var uranusGrid = buildSphereGrid(20, 0xffff00, [-1000, 0, ]);
-    // scene.add(uranusGrid);
+    uranusGrid = buildSphereGrid(20.288, 0x6eaab9, [-690, 556.8, 1000]);
+    // uranusGrid.rotation.z = 1.71;
+    uranusGrid.rotation.z = 1.57;
+    geometry = new THREE.RingGeometry(50, 51, 20);
+    material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        // opacity: 0.5,
+        side: THREE.DoubleSide,
+        wireframe: true,
+    });
+    uranusRings = new THREE.Mesh(geometry, material);
+    uranusRings.position.set(-690, 556.8, 1000);
+    uranusRings.rotation.y = 1.57;
+    scene.add(uranusRings);
+    
+    scene.add(uranusGrid);
+
 
 
     // blue, with the 'great dark spot'
     // have the player choose a blueberry from a fruit stand 
     var neptune;
-    // var neptuneGrid = buildSphereGrid(20, 0xffff00, [-1000, 0, ]);
-    // scene.add(neptuneGrid);
+    neptuneGrid = buildSphereGrid(19.7, 0x415495, [-775, 556.8, 1000]);
+    // neptuneGrid.rotation.z = 0.49;
+    scene.add(neptuneGrid);
 
 
 
     // tiny, not considered a planet anymore, has a heart on the surface
     // have the player match two objects together, have a heart float up after
     var pluto;
-    // var plutoGrid = buildSphereGrid(1, 0xffff00, [-1000, 0, 0]);
-    // scene.add(plutoGrid);
+    plutoGrid = buildSphereGrid(0.9488, 0x34030a, [-850, 556.8, 1000]);
+    // plutoGrid.rotation.z = 2.14;
+    // plutoGrid.rotation.y = 1.71;
+    scene.add(plutoGrid);
 
 
     controls = new PointerLockControls(camera, document.body);
@@ -261,7 +302,7 @@ function init() {
 
 
     
-    stlloader.load('./src/models/mobius_2.stl', function (object){
+    stlloader.load('./src/models/mobius.stl', function (object){
         var material = new THREE.MeshNormalMaterial();
         object.computeBoundingBox();
         object.computeVertexNormals();
@@ -323,9 +364,7 @@ function init() {
     });
 
     boundingBox = new THREE.Mesh( boundingBox, material );
-    boundingBox.position.x = camera.position.x;
-    boundingBox.position.y = camera.position.y;
-    boundingBox.position.z = camera.position.z;
+    boundingBox.position.set(camera.position);
 
     scene.add(boundingBox);
 
@@ -375,9 +414,11 @@ function init() {
         });
 
         var box = new THREE.Mesh(boxGeometry, boxMaterial);
-        box.position.x = Math.floor(Math.random() * 20 - 10) * 200;
-        box.position.y = Math.floor(Math.random() * 20) * 20 + 50;
-        box.position.z = Math.floor(Math.random() * 20 - 10) * 200;
+        box.position.set(
+            Math.floor(Math.random() * 20 - 10) * 200,
+            Math.floor(Math.random() * 20) * 20 + 50,
+            Math.floor(Math.random() * 20 - 10) * 200
+        );
 
         // scene.add(box);
         // objects.push(box);
@@ -409,31 +450,67 @@ function onWindowResize() {
 
 }
 
-function buildSphereGrid(radius, color, position) {
+function buildSphereGrid(radius, color, position, translation=0) {
     var geometry = new THREE.SphereGeometry(radius, 22, 22);
     var material = new THREE.MeshBasicMaterial({
         color: color,
         wireframe: true,
     });
+    geometry.translate(translation, 0, 0);
     var sphereGrid = new THREE.Mesh(geometry, material);
-    sphereGrid.position.x = position[0];
-    sphereGrid.position.y = position[1];
-    sphereGrid.position.z = position[2];
+    sphereGrid.position.set(position[0], position[1], position[2])
     return sphereGrid;
 }
 
 function animate() {
 
     window.playerLocation = camera.position;
-
-    // scene.mobius.rotation.x += 1;
     ground.rotation.y += 0.01;
 
+    // axis rotation
+    sunGrid.rotation.y += 0.0005;
+    mercuryGrid.rotation.y += 0.002;
+    venusGrid.rotation.y -= 0.002;
+    earthGrid.rotation.y += 0.002;
+    marsGrid.rotation.y += 0.002;
+    jupiterGrid.rotation.y += 0.002;
+    saturnGrid.rotation.y += 0.002;
+    saturnRings.rotation.z -= 0.002;
+    uranusGrid.rotation.x += 0.002;
+    uranusRings.rotation.x += 0.002;
+    neptuneGrid.rotation.y += 0.002;
+    plutoGrid.rotation.y += 0.002;
+    
+    // revolutions (days) to hours
+    // moon around earth - 27.322 - 655.728
+    moonGrid.rotation.y += 0.003;
 
-
-
-
-
+    // mercury - 87.97 - 2111.28 
+    // mercuryGrid.rotation.y += 0.00276231;
+    
+    // venus - 224.7 - 5392.8              
+    // venusGrid.rotation.y += 0.00108144;
+    
+    // earth - 365.26 - 8766.24             
+    // earthGrid.rotation.y += 0.00066528;
+    
+    // mars - 686.98 - 16487.52             
+    // marsGrid.rotation.y += 0.00035372;
+    
+    // jupiter - 4332.82 - 103987.68        
+    // jupiterGrid.rotation.y += 0.00005608;
+    
+    // saturn - 10755.7 - 258136.8          
+    // saturnGrid.rotation.y += 0.00002259;
+    
+    // uranus - 30687.15 - 736491.6         
+    // uranusGrid.rotation.y += 0.00000792;
+    
+    // neptune - 60190.03 - 1444560.72      
+    // neptuneGrid.rotation.y += 0.00000404;
+    
+    // pluto - 90553 - 2173272              
+    // plutoGrid.rotation.y += 0.00000268;
 
     // console.log(boundingBox.position.x == camera.position.x);
     // boundingBox
