@@ -44,9 +44,11 @@ function init() {
         "prevTime": prevTime,
     }
 
+    state.playerInv = [];
     state.miniSpaceObjs = [];
     state.spaceObjGrids = [];
     state.backgroundObjs = [];
+    state.collectableObjs = [];
     state.dynamicObjs = {};
     state.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
     state.camera.position.y = 10;
@@ -288,28 +290,28 @@ function loadSceneModels() {
     loadSTLModel('./src/models/background/cube-structure.stl', [-10, 10, 0], [0,0,0], [0.01,0.01,0.01], "A Strange Cube Structure.", "strangeCube");
     loadSTLModel('./src/models/puzzle/earth/Tree.stl', [-150, 0, -300], [-1.57, 0, 0], [3, 3, 3], "It's a fruit tree.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/jupiter/tornado.stl', [50, -3, -200], [-1.57, 0, 0], [1, 1, 1], "It's a tornado.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/mars/battery.stl', [120, 0, -200], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a battery, this might come in handy later...", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/mars/battery.stl', [120, 0, -180], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a battery, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/mars/curiosity.stl', [140, 0, -200], [-1.57, 0, 0], [0.1, 0.1, 0.1], "My battery is low and it's getting dark.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/mars/streetlamp.stl', [120, 0, -200], [-1.57, 0, 0], [1, 1, 1], "It's a solar-powered streetlamp.", "backgroundObjs");
     loadSTLModel('./src/models/background/low-poly-face.stl', [-200, 0, -220], [-1.57, 0, 0], [1, 1, 1], "Its gaze pierces your soul and it appears sick.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/mercury/Thermometer.stl', [-200, -3, -185], [-1.57, 1.57, 0.2], [0.4, 0.4, 0.4], "It's a thermometer, this might come in handy later...", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/mercury/Thermometer.stl', [-200, -3, -185], [-1.57, 1.57, 0.2], [0.4, 0.4, 0.4], "It's a thermometer, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/moon/cheese-wheel.stl', [-240, 7, -185], [1.57, 0, 1.57], [0.4, 0.4, 0.4], "A classic cheese wheel.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/market-stall.stl', [-290, 8, -200], [-1.57, 0, -1.57], [2.5, 2.5, 2.5], "It's a fruit stand, I might be able to buy something.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/Apple.stl', [-297.5, 8.5, -199.5], [-1.57, 0, -1.57], [0.01, 0.01, 0.01], "A delicious looking apple.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/neptune/coin.stl', [-295, 0, -190], [-1.57, 0, -1.57], [0.025, 0.025, 0.025], "It looks like some sort of galactic coin, this might come in handy later...", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/neptune/coin.stl', [-295, 0, -190], [-1.57, 0, -1.57], [0.025, 0.025, 0.025], "It looks like some sort of galactic coin, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/neptune/Grapes.stl', [-295.9, 7.5, -200], [0, -3.14, 0], [0.025, 0.025, 0.025], "Deliciously ripe grapes.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/Pineapple.stl', [-297.5, 8.5, -201], [-1.57, 0, -1.57], [0.05, 0.05, 0.05], "It's a pineapple, yum!", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/Strawberry.stl', [-296.5, 8.5, -196], [-1.57, 0, 0], [0.025, 0.025, 0.025], "A single strawberry, but it is sizeable.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/pluto/bone.stl', [-320, 0, -190], [-1.57, 0, 0], [0.03, 0.03, 0.03], "It looks like a bone, and you'd rather not think about where it came from.", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/pluto/bone.stl', [-320, 0, -190], [-1.57, 0, 0], [0.03, 0.03, 0.03], "It looks like a bone and you'd rather not think about where it came from. It may come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/pluto/Puppy.stl', [-320, 0, -200], [-1.57, 0, 0], [0.25, 0.25, 0.25], "A cute puppy. It looks at you expectantly.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/saturn/rock-ring.stl', [170, 0, -200], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a circle of rocks, but one appears to be missing.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/saturn/pebble.stl', [170, 0, -170], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a pebble, this might come in handy later...", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/saturn/pebble.stl', [170, 0, -170], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a pebble, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/sun/lightbulb-glass.stl', [200, 0, -200], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a lightbulb, and it seems to be touch activated... somehow...", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/sun/lightbulb-plug.stl', [200, 0, -200], [-1.57, 0, 0], [0.05, 0.05, 0.05], "There is a plug, but it doesn't seem to be connected anywhere", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/uranus/cup-table.stl', [300, 0, -200], [-1.57, 0, 0], [2.5,2.5,2.5], "It's a table with some cups on it", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/venus/greenhouse.stl', [300, 0, 0], [-1.57, 0, 0], [1,1,1], "It's a greenhouse with a few plants inside, one does not seem to have sprouted", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/venus/Dirt.stl', [300, 0, 0], [-1.57, 0, 0], [1, 1, 1], "There is no flower in this pot, maybe it just didn't grow?", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/venus/shovel.stl', [100, 2, 100], [1.57, 0, 0], [0.05, 0.05, 0.05], "It's a shovel, this might come in handy later...", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/venus/shovel.stl', [100, 2, 100], [1.57, 0, 0], [0.05, 0.05, 0.05], "It's a shovel, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/denizen/Denizen-body.stl', [0, 10, 50], [-1.57, 0, 3.14], [1, 1, 1], "A strange torso for a strange being", "backgroundObjs");
     loadSTLModel('./src/models/denizen/Denizen-feet.stl', [0, 0, 50], [-1.57, 0, 3.14], [1, 1, 1], "The being appears to have chicken feet", "backgroundObjs");
     loadSTLModel('./src/models/denizen/Denizen-hands.stl', [0, 10, 50], [-1.57, 0, 3.14], [1, 1, 1], "The being's large gloved hands grasp a pencil loosely", "backgroundObjs");
@@ -354,6 +356,7 @@ function objectInteractionHandler(){
     let playerPosition = state.camera.position;
     let closestMes = "";
     let closestDis = 50;
+    let puzzlePiece = false;
 
     state.miniSpaceObjs.forEach((obj) => {
         let dis = playerPosition.distanceTo(obj.position) - obj.geometry.parameters.radius;
@@ -378,10 +381,61 @@ function objectInteractionHandler(){
             closestMes = obj.name;
         }
     })
+    state.collectableObjs.forEach((obj) => {
+        let heightDif = playerPosition.y - obj.position.y;
+        if (heightDif < 0) {
+            heightDif *= -1;
+        }
+        let dis = playerPosition.distanceTo(obj.position) - heightDif;
+        if (dis < 50 && dis < closestDis) {
+            closestDis = dis;
+            closestMes = obj.name;
+            puzzlePiece = true;
+        }
+    })
 
     if(closestMes != ""){
         console.log(closestMes);
-        
+    }
+
+    if(puzzlePiece == true){
+        let itemName = "";
+        switch (closestMes) {
+            case "It's a battery, this might come in handy later...":
+                itemName = "Battery";
+                
+                break;
+            case "It's a thermometer, this might come in handy later...":
+                itemName = "Thermometer";
+
+                break;
+            case "It looks like some sort of galactic coin, this might come in handy later...":
+                itemName = "Coin";
+
+                break;
+            case "It looks like a bone and you'd rather not think about where it came from. It may come in handy later...":
+                itemName = "Bone";
+
+                break;
+            case "It's a pebble, this might come in handy later...":
+                itemName = "Pebble";
+
+                break;
+            case "It's a shovel, this might come in handy later...":
+                itemName = "Shovel";
+
+                break;
+            default:
+                break;
+        }
+
+        if (state.playerInv.indexOf(itemName) == -1){
+            state.playerInv.push(itemName);
+            let invItem = document.createElement("li");
+            let invText = document.createTextNode(itemName);
+            invItem.appendChild(invText);
+            document.getElementById('inventory').appendChild(invItem);
+        }
     }
 }
 

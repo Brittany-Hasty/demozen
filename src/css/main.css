@@ -7,9 +7,31 @@ html, body {
 }
 
 .inventory {
+    padding: 0;
     position: fixed;
     bottom: 0;
     background-color: transparent;
     color: white;
     font-size: larger;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.inventory li {
+    list-style-type: none;
+}
+
+.inventory p {
+    font-weight: bold;
+    position: fixed;
+    bottom: 35px;
+    background-color: transparent;
+    color: white;
+    text-align: left;
+}
+
+.hidden {
+    visibility: hidden;
 }
