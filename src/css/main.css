@@ -9,7 +9,7 @@ html, body {
 .inventory {
     padding: 0;
     position: fixed;
-    bottom: 0;
+    bottom: 0px;
     background-color: transparent;
     color: white;
     font-size: larger;
@@ -32,6 +32,14 @@ html, body {
     text-align: left;
 }
 
-.hidden {
-    visibility: hidden;
+.dialogue {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: transparent;
+    color: white;
+    font-weight: bold;
+    font-size: 30px;
 }

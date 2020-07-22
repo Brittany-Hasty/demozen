@@ -356,13 +356,19 @@ function objectInteractionHandler(){
     let playerPosition = state.camera.position;
     let closestMes = "";
     let closestDis = 50;
+    let planetPiece = false;
     let puzzlePiece = false;
+    let idx = -1;
+    let collectedObj = {};
 
-    state.miniSpaceObjs.forEach((obj) => {
+    state.miniSpaceObjs.forEach((obj, i) => {
         let dis = playerPosition.distanceTo(obj.position) - obj.geometry.parameters.radius;
         if (dis < 10 && dis < closestDis) {
             closestDis = dis;
             closestMes = "You have collected " + obj.name;
+            planetPiece = true;
+            collectedObj = obj;
+            idx = i;
         }
     })
     state.spaceObjGrids.forEach((obj) => {
@@ -370,6 +376,7 @@ function objectInteractionHandler(){
         if (dis < 10 && dis < closestDis) {
             closestDis = dis;
             closestMes = "A missing piece of the solar system! This appears to be where " + obj.name + " should go...";
+            planetPiece = false;
         }
     })
     state.backgroundObjs.forEach((obj) => {
@@ -379,9 +386,10 @@ function objectInteractionHandler(){
         if (dis < 50 && dis < closestDis) {
             closestDis = dis;
             closestMes = obj.name;
+            planetPiece = false;
         }
     })
-    state.collectableObjs.forEach((obj) => {
+    state.collectableObjs.forEach((obj, i) => {
         let heightDif = playerPosition.y - obj.position.y;
         if (heightDif < 0) {
             heightDif *= -1;
@@ -391,19 +399,18 @@ function objectInteractionHandler(){
             closestDis = dis;
             closestMes = obj.name;
             puzzlePiece = true;
+            collectedObj = obj;
+            planetPiece = false;
+            idx = i;
         }
     })
-
-    if(closestMes != ""){
-        console.log(closestMes);
-    }
 
     if(puzzlePiece == true){
         let itemName = "";
         switch (closestMes) {
             case "It's a battery, this might come in handy later...":
                 itemName = "Battery";
-                
+
                 break;
             case "It's a thermometer, this might come in handy later...":
                 itemName = "Thermometer";
@@ -431,12 +438,27 @@ function objectInteractionHandler(){
 
         if (state.playerInv.indexOf(itemName) == -1){
             state.playerInv.push(itemName);
+            state.scene.remove(collectedObj);
+            state.collectableObjs.splice(idx, 1);
             let invItem = document.createElement("li");
             let invText = document.createTextNode(itemName);
             invItem.appendChild(invText);
             document.getElementById('inventory').appendChild(invItem);
         }
     }
+
+    if (planetPiece == true && state.playerInv.indexOf(collectedObj.name) == -1){
+        state.playerInv.push(collectedObj.name);
+        state.scene.remove(collectedObj);
+        state.miniSpaceObjs.splice(idx, 1);
+        // add planet texure to grid here on collect
+    }
+
+    // output message and clear on timeout
+    document.getElementById('dialogue').innerHTML = "";
+    let storyText = document.createTextNode(closestMes);
+    document.getElementById('dialogue').appendChild(storyText);
+    setTimeout(() => document.getElementById('dialogue').innerHTML = "", 5000);
 }
 
 function buildSphere(radius, color, position, name="", translation=0, skinPath='') {
