@@ -174,8 +174,12 @@ function init() {
         
 
     document.body.addEventListener('click', function () {
-
-        state.controls.lock();
+        if(state.loadingBar.loadedModels == state.loadingBar.totalModels){
+            if (document.getElementById("welcome-screen").className == "welcome-screen"){
+                document.getElementById("welcome-screen").className = "hidden";
+            }
+            state.controls.lock();
+        }
 
     }, false);
     document.addEventListener('keydown', onKeyDown, false);
@@ -881,13 +885,13 @@ function denizenDialogue(){
 
 function updateLoadingBar(){
     state.loadingBar.loadedModels += 1;
-    // let percentTxt = "Now Loading... " + 100 * ((state.loadingBar.loadedModels/state.loadingBar.totalModels).toFixed(2)) + "%";
-    // document.getElementById('loadPercent').innerHTML = "";
-    // let percent = document.createTextNode(percentTxt);
-    // document.getElementById('loadPercent').appendChild(percent);
-    // if(state.loadingBar.loadedModels == state.loadingBar.totalModels){
-    //     let clickTxt = "Click to begin!";
-    //     let message = document.createTextNode(clickTxt);
-    //     document.getElementById('startTxt').appendChild(message);
-    // }
+    let percentTxt = "Now Loading... " + 100 * ((state.loadingBar.loadedModels/state.loadingBar.totalModels).toFixed(2)) + "%";
+    document.getElementById('loadPercent').innerHTML = "";
+    let percent = document.createTextNode(percentTxt);
+    document.getElementById('loadPercent').appendChild(percent);
+    if(state.loadingBar.loadedModels == state.loadingBar.totalModels){
+        let clickTxt = "Click to begin!";
+        let message = document.createTextNode(clickTxt);
+        document.getElementById('startTxt').appendChild(message);
+    }
 }
