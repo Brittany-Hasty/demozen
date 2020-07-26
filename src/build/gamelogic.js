@@ -2,8 +2,6 @@ import * as THREE from './three.module.js';
 import { PointerLockControls } from './PointerLockControls.js';
 import { STLLoader } from './STLLoader.js';
 
-// import { PDBLoader } from './PDBLoader.js';
-
 const state = {};
 
 init();
@@ -12,7 +10,7 @@ animate();
 function init() {
     state.loadingBar = {
         "loadedModels": 0,
-        "totalModels": 52,
+        "totalModels": 51,
     }
     let velocity = new THREE.Vector3();
     let direction = new THREE.Vector3();
@@ -20,13 +18,11 @@ function init() {
     let color = new THREE.Color();
     let prevTime = performance.now();
     let stlloader = new STLLoader();
-    // let pdbloader = new THREE.PDBLoader();
     let textureloader = new THREE.TextureLoader();
 
     state.loaders = {
         "stlloader": stlloader,
         "textureloader": textureloader,
-        // "pdbloader": pdbloader,
     }
 
     let initAngs = {
@@ -58,7 +54,10 @@ function init() {
     }
 
     state.playerInv = [];
-    state.denizen = {};
+    state.denizen = {
+        "animationVar": 0.01,
+        "dialogueStage": 0,
+    };
     state.miniSpaceObjs = {};
     state.spaceObjects = {};
     state.backgroundObjs = {};
@@ -194,8 +193,11 @@ function animate() {
 
     window.playerLocation = state.camera.position;
 
-    rotateSceneObjects();
-    solarSystemOrbits();
+    if (state.loadingBar.totalModels <= state.loadingBar.loadedModels) {
+        denizenAnimation();
+        rotateSceneObjects();
+        solarSystemOrbits();
+    }
     requestAnimationFrame(animate);
 
     if (state.controls.isLocked === true) {
@@ -338,13 +340,12 @@ function loadSceneModels() {
         updateLoadingBar();
         state.scene.add(state.dynamicObjs.mobius);
     });
-    loadSTLModel('./src/models/background/cube-structure.stl', [-10, 10, 0], [0,0,0], [0.01,0.01,0.01], "A Strange Cube Structure.", "strangeCube");
     loadSTLModel('./src/models/puzzle/earth/Tree.stl', [1500, 0, 0], [-1.57, 0, 0], [3, 3, 3], "It's a fruit tree.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/jupiter/tornado.stl', [-750, 0, -1305], [-1.57, 0, 0], [1, 1, 1], "It's a tornado.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/mars/battery.stl', [120, 0, -180], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a battery, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/mars/curiosity.stl', [750, 0, -1305], [-1.57, 0, 0], [0.1, 0.1, 0.1], "My battery is low and it's getting dark.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/mars/streetlamp.stl', [730, 0, -1305], [-1.57, 0, 0], [1, 1, 1], "It's a solar-powered streetlamp.", "backgroundObjs");
-    loadSTLModel('./src/models/background/low-poly-face.stl', [750, 0, 1305], [-1.57, 0, 3.14], [1, 1, 1], "It appears sick.", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/mercury/low-poly-face.stl', [750, 0, 1305], [-1.57, 0, 3.14], [1, 1, 1], "It appears sick.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/mercury/Thermometer.stl', [750, 41, 1275], [-1.57, 1.57, 3.34], [0.4, 0.4, 0.4], "It's a thermometer, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/moon/cheese-wheel.stl', [1305, 64, -760], [1.57, 0, 1.57], [4, 4, 4], "A classic cheese wheel.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/market-stall.stl', [-1305, 8, 750], [-1.57, 0, -1.57], [2.5, 2.5, 2.5], "It's a fruit stand, I might be able to buy something.", "backgroundObjs");
@@ -366,14 +367,16 @@ function loadSceneModels() {
     loadSTLModel('./src/models/denizen/Denizen-body.stl', [0, 2.5, -800], [-1.57, 0, 0], [0.25, 0.25, 0.25], "torso", "denizen");
     loadSTLModel('./src/models/denizen/Denizen-feet.stl', [0, 0, -800], [-1.57, 0, 0], [0.25, 0.25, 0.25], "feet", "denizen");
     loadSTLModel('./src/models/denizen/Denizen-hands.stl', [0, 2.5, -800], [-1.57, 0, 0], [0.25, 0.25, 0.25], "hands", "denizen");
-    loadSTLModel('./src/models/denizen/Denizen-head.stl', [0, 4, -800], [-1.57, 0, 0], [0.25, 0.25, 0.25], "head", "denizen");
-    // loadSTLModel('./src/models/background/Mountains.stl', [-100, 0, -100], [-1.57, 0, 1.57], [1, 1, 1], "A mountain range", "backgroundObjs");
+    loadSTLModel('./src/models/denizen/Denizen-head.stl', [0, 30, -800], [0, 0, 0], [0.25, 0.25, 0.25], "head", "denizen");
     defineCustomModelCenters();
 }
 
 function loadSTLModel(path, position, rotation, scale, name, group) {
     let loader = state.loaders.stlloader;
     loader.load(path, function (object) {
+        if(group == "denizen" && name == "head"){
+            object.center();
+        }
         let material = new THREE.MeshNormalMaterial();
         let geometry = object;
         let model = new THREE.Mesh(geometry, material);
@@ -381,14 +384,9 @@ function loadSTLModel(path, position, rotation, scale, name, group) {
         model.rotation.set(rotation[0], rotation[1], rotation[2]);
         model.scale.set(scale[0], scale[1], scale[2]);
         model.name = name;
-        if (group != "strangeCube"){
-            let collection = state[group];
-            collection[name] = model;
-            state.scene.add(collection[name]);
-        } else {
-            state.dynamicObjs[group] = model;
-            state.scene.add(state.dynamicObjs[group]);
-        }
+        let collection = state[group];
+        collection[name] = model;
+        state.scene.add(collection[name]);
         updateLoadingBar();
     });
 }
@@ -788,15 +786,13 @@ function collectSpaceObject(objName){
             break;
     }
     state.scene.add(state.spaceObjects[objName]);
+    if(Object.keys(state.miniSpaceObjs).length == 0){
+        state.denizen.dialogueStage = 7;
+    }
 }
 
 function rotateSceneObjects(){
-    if (state.dynamicObjs.mobius) {
-        state.dynamicObjs.mobius.rotation.z += 0.005;
-    }
-    if (state.dynamicObjs.strangeCube){
-        state.dynamicObjs.strangeCube.rotation.z += 0.01;
-    }
+    state.dynamicObjs.mobius.rotation.z += 0.005;
 
     // axis rotation
     state.spaceObjects["the Sun"].rotation.y += 0.0005;
@@ -875,17 +871,77 @@ function defineCustomModelCenters(){
     state.backgroundObjCenters["There is no flower in this pot, maybe it just didn't grow?"] = new THREE.Vector3(1380, 15, 715);
 }
 
+function denizenAnimation(){
+    let currentY = state.denizen.torso.position.y;
+    if(currentY >= 3){
+        state.denizen.animationVar = -0.01;
+    } else if (currentY <= 1){
+        state.denizen.animationVar = 0.01;
+    }
+    state.denizen.torso.position.y += state.denizen.animationVar;
+    state.denizen.hands.position.y -= state.denizen.animationVar;
+
+    // head tracking
+    let player = state.camera.position;
+    state.denizen.head.lookAt(new THREE.Vector3(player.x, player.y, player.z));
+}
+
 function denizenDialogue(){
-    console.log("Hello!");
-    // document.getElementById('dialogue').innerHTML = "";
-    // let storyText = document.createTextNode(closestMes);
-    // document.getElementById('dialogue').appendChild(storyText);
-    // setTimeout(() => document.getElementById('dialogue').innerHTML = "", 5000);
+    let speech = "";
+    switch (state.denizen.dialogueStage) {
+        case 0:
+            speech = "Hello! My name is ⌬▊❐✦▣☰ꋊ༄⌧, but it is okay if you call me Denizen.";
+            break;
+        case 1:
+            speech = "I'm doing a homework assignment on your solar system, but I dropped some of the pieces and I need help collecting them.";
+            break;
+
+        case 2:
+            speech = "This dimension likes to take on characteristics of nearby objects, but I don't know very much about your solar system...";
+            break;
+    
+        case 3:
+            speech = "ₘₐᵧᵦₑ ᵢ ₛₕₒᵤₗ𝒹ₙ'ₜ ₕₐᵥₑ ₛₗₑₚₜ ₜₕᵣₒᵤ𝓰ₕ 𝒸ₗₐₛₛ...";
+            break;
+
+        case 4: 
+            speech = "My project is in the center of this dimensional room if you need to check what pieces still need to be collected.";
+            break;
+
+        case 5:
+            speech = "Also, don't forget Earth's Moon and Pluto! I get extra credit for them.";
+            break;
+
+        case 7:
+            speech = "Great job! I'm sure to get an A on my project!";
+            break;
+
+        case 8:
+            speech = "ᵢ'ₘ ₛᵤᵣₑ ᵢ 𝒸ₐₙ 𝒻ᵢ𝓰ᵤᵣₑ ₒᵤₜ ₕₒ𝓌 ₜₒ ᵣₑₜᵤᵣₙ ᵧₒᵤ ₑᵥₑₙₜᵤₐₗₗᵧ...";
+            break;
+
+        case 9:
+            speech = "ₙₒ ₜₕₐₜ 𝓌ₒᵤₗ𝒹ₙ'ₜ 𝓌ₒᵣₖ...";
+            state.denizen.dialogueStage -= 2;
+            break;
+
+        default:
+            speech = "Is the search going well?";
+            state.denizen.dialogueStage -= 1;
+            break;
+    }
+    state.denizen.dialogueStage += 1;
+    document.getElementById('dialogue').innerHTML = "";
+    let storyText = document.createTextNode(speech);
+    document.getElementById('dialogue').appendChild(storyText);
+    if (speech == "Is the search going well?" || speech == "ᵢ'ₘ ₛᵤᵣₑ ᵢ 𝒸ₐₙ 𝒻ᵢ𝓰ᵤᵣₑ ₒᵤₜ ₕₒ𝓌 ₜₒ ᵣₑₜᵤᵣₙ ᵧₒᵤ ₑᵥₑₙₜᵤₐₗₗᵧ..." || speech == "ₙₒ ₜₕₐₜ 𝓌ₒᵤₗ𝒹ₙ'ₜ 𝓌ₒᵣₖ...") {
+        setTimeout(() => document.getElementById('dialogue').innerHTML = "", 5000);
+    }
 }
 
 function updateLoadingBar(){
     state.loadingBar.loadedModels += 1;
-    let percentTxt = "Now Loading... " + 100 * ((state.loadingBar.loadedModels/state.loadingBar.totalModels).toFixed(2)) + "%";
+    let percentTxt = "Now Loading... " + Math.floor(100 * (state.loadingBar.loadedModels/state.loadingBar.totalModels)) + "%";
     document.getElementById('loadPercent').innerHTML = "";
     let percent = document.createTextNode(percentTxt);
     document.getElementById('loadPercent').appendChild(percent);
