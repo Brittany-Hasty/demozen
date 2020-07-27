@@ -173,8 +173,8 @@ function init() {
         
 
     document.body.addEventListener('click', function () {
-        if(state.loadingBar.loadedModels == state.loadingBar.totalModels){
-            if (document.getElementById("welcome-screen").className == "welcome-screen"){
+        if(state.loadingBar.loadedModels == state.loadingBar.totalModels && document.getElementById("end-screen").className != "screen-overlay"){
+            if (document.getElementById("welcome-screen").className == "screen-overlay"){
                 document.getElementById("welcome-screen").className = "hidden";
             }
             state.controls.lock();
@@ -263,7 +263,7 @@ function animate() {
 function loadSceneModels() {
     buildSolarSystem();
     let minis = state.miniSpaceObjs;
-    minis["the Sun"] = buildSphere(2.5, 0xff8800, [0, 10, 1500], "the Sun", 0, './src/models/textures/sun-texture.jpg', false);
+    minis["the Sun"] = buildSphere(2.5, 0xff8800, [0, 10, 1483], "the Sun", 0, './src/models/textures/sun-texture.jpg', false);
     minis["Mercury"] = buildSphere(2.5, 0xff8800, [751, 23, 1255], "Mercury", 0, './src/models/textures/mercury-texture.jpg', false);
     minis["Venus"] = buildSphere(2.5, 0xff8800, [1384, 25, 716], "Venus", 0, './src/models/textures/venus-texture.jpg', false);
     minis["Earth"] = buildSphere(6, 0xff8800, [1550, 70, 83], "Earth", 0, './src/models/textures/earth-texture.jpg');
@@ -358,8 +358,8 @@ function loadSceneModels() {
     loadSTLModel('./src/models/puzzle/pluto/Puppy.stl', [-750, 0, 1305], [-1.57, 0, 0], [0.25, 0.25, 0.25], "A cute puppy. It's looking at me expectantly.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/saturn/rock-ring.stl', [-1305, 0, -750], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a circle of rocks, but one appears to be missing.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/saturn/pebble.stl', [170, 0, -170], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a pebble, this might come in handy later...", "collectableObjs");
-    loadSTLModel('./src/models/puzzle/sun/lightbulb-glass.stl', [0, 0, 1500], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a lightbulb, and it seems to be touch activated... somehow...", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/sun/lightbulb-plug.stl', [0, 0, 1500], [-1.57, 0, 0], [0.05, 0.05, 0.05], "There is a plug, but it doesn't seem to be connected anywhere", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/sun/lightbulb-glass.stl', [0, 0, 1500], [-3.14, 0, 0], [1, 1, 1], "It's a lightbulb, and it seems to be touch activated... somehow...", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/sun/lightbulb-plug.stl', [0, 0, 1500], [-3.14, 0, 0], [1, 1, 1], "There is a plug, but it doesn't seem to be connected anywhere", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/uranus/cup-table.stl', [-1500, 0, 0], [-1.57, 0, 0], [2.5,2.5,2.5], "It's a table with some cups on it", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/venus/greenhouse.stl', [1305, 0, 750], [-1.57, 0, 0], [1,1,1], "It's a greenhouse with a few plants inside, one does not seem to have sprouted", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/venus/Dirt.stl', [1305, 0, 750], [-1.57, 0, 0], [1, 1, 1], "There is no flower in this pot, maybe it just didn't grow?", "backgroundObjs");
@@ -623,6 +623,11 @@ function checkForPlacements(obj, defaultMessage=""){
             break;
 
         case "It's a lightbulb, and it seems to be touch activated... somehow..." || "There is a plug, but it doesn't seem to be connected anywhere":
+            state.scene.children.forEach(child => {
+                if (child.name == "the Sun") {
+                    child.visible = true;
+                }
+            })
             break;
 
         case "There is no flower in this pot, maybe it just didn't grow?":
@@ -913,7 +918,7 @@ function denizenDialogue(){
             break;
 
         case 7:
-            speech = "Great job! I'm sure to get an A on my project!";
+            speech = "Great job! I'm sure to get a good grade on my project!";
             break;
 
         case 8:
@@ -921,8 +926,8 @@ function denizenDialogue(){
             break;
 
         case 9:
-            speech = "ₙₒ ₜₕₐₜ 𝓌ₒᵤₗ𝒹ₙ'ₜ 𝓌ₒᵣₖ...";
-            state.denizen.dialogueStage -= 2;
+            document.getElementById("end-screen").className = "screen-overlay";
+            state.controls.unlock();
             break;
 
         default:
@@ -934,7 +939,7 @@ function denizenDialogue(){
     document.getElementById('dialogue').innerHTML = "";
     let storyText = document.createTextNode(speech);
     document.getElementById('dialogue').appendChild(storyText);
-    if (speech == "Is the search going well?" || speech == "ᵢ'ₘ ₛᵤᵣₑ ᵢ 𝒸ₐₙ 𝒻ᵢ𝓰ᵤᵣₑ ₒᵤₜ ₕₒ𝓌 ₜₒ ᵣₑₜᵤᵣₙ ᵧₒᵤ ₑᵥₑₙₜᵤₐₗₗᵧ..." || speech == "ₙₒ ₜₕₐₜ 𝓌ₒᵤₗ𝒹ₙ'ₜ 𝓌ₒᵣₖ...") {
+    if (speech == "Is the search going well?" || speech == "ᵢ'ₘ ₛᵤᵣₑ ᵢ 𝒸ₐₙ 𝒻ᵢ𝓰ᵤᵣₑ ₒᵤₜ ₕₒ𝓌 ₜₒ ᵣₑₜᵤᵣₙ ᵧₒᵤ ₑᵥₑₙₜᵤₐₗₗᵧ...") {
         setTimeout(() => document.getElementById('dialogue').innerHTML = "", 5000);
     }
 }
