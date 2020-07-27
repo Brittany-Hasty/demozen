@@ -10,7 +10,7 @@ animate();
 function init() {
     state.loadingBar = {
         "loadedModels": 0,
-        "totalModels": 51,
+        "totalModels": 52,
     }
     let velocity = new THREE.Vector3();
     let direction = new THREE.Vector3();
@@ -129,8 +129,8 @@ function init() {
                 }
             break;
 
-            case 76: // l
-            console.log(state.camera.position);
+            // case 76: // l
+            // console.log(state.camera.position);
             break;
         }
         
@@ -185,7 +185,7 @@ function init() {
     document.addEventListener('keyup', onKeyUp, false);
     window.addEventListener('resize', onWindowResize, false);
                 
-    console.log(state);
+    // console.log(state);
                 
 }
 
@@ -231,9 +231,6 @@ function animate() {
         if (state.physicsVars.moveForward || state.physicsVars.moveBackward) state.physicsVars.velocity.z -= state.physicsVars.direction.z * movementSpeed * delta;
         if (state.physicsVars.moveLeft || state.physicsVars.moveRight) state.physicsVars.velocity.x -= state.physicsVars.direction.x * movementSpeed * delta;
 
-
-
-
         if (negYObject === true) {
             state.physicsVars.velocity.y = Math.max(0, state.physicsVars.velocity.y);
             state.physicsVars.canJump = true;
@@ -253,6 +250,23 @@ function animate() {
             
         }
         
+        let pos = state.controls.getObject().position;
+        if (pos.x >= 4000){
+            pos.x %= 4000;
+            pos.x -= 4000;
+        }
+        if (pos.x <= -4000){
+            pos.x %= 4000;
+            pos.x += 4000;
+        }
+        if (pos.z >= 4000){
+            pos.z %= 4000;
+            pos.z -= 4000;
+        }
+        if (pos.z <= -4000){
+            pos.z %= 4000;
+            pos.z += 4000;
+        }
         state.physicsVars.prevTime = time;
         
     }
@@ -262,46 +276,7 @@ function animate() {
 
 function loadSceneModels() {
     buildSolarSystem();
-    let minis = state.miniSpaceObjs;
-    minis["the Sun"] = buildSphere(2.5, 0xff8800, [0, 10, 1483], "the Sun", 0, './src/models/textures/sun-texture.jpg', false);
-    minis["Mercury"] = buildSphere(2.5, 0xff8800, [751, 23, 1255], "Mercury", 0, './src/models/textures/mercury-texture.jpg', false);
-    minis["Venus"] = buildSphere(2.5, 0xff8800, [1384, 25, 716], "Venus", 0, './src/models/textures/venus-texture.jpg', false);
-    minis["Earth"] = buildSphere(6, 0xff8800, [1550, 70, 83], "Earth", 0, './src/models/textures/earth-texture.jpg');
-    minis["the Moon"] = buildSphere(4, 0xff8800, [1255, 10, -887], "the Moon", 0, './src/models/textures/moon-texture.jpg');
-    minis["Mars"] = buildSphere(2.5, 0xff8800, [757, 11, -1292], "Mars", 0, './src/models/textures/mars-texture.jpg', false);
-    minis["Jupiter"] = buildSphere(2.5, 0xff8800, [-750, 10, -1305], "Jupiter", 0, './src/models/textures/jupiter-texture.jpg');
-    minis["Saturn"] = buildSphere(2.5, 0xff8800, [-1305, 10, -750], "Saturn", 0, './src/models/textures/saturn-texture.jpg', false);
-    let unflipped = buildSphere(2.5, 0xff8800, [-1500, 10, 0], "Uranus", 0, './src/models/textures/uranus-texture.jpg');
-    unflipped.rotation.z = 1.57;
-    minis["Uranus"] = unflipped;
-    minis["Neptune"] = buildSphere(2, 0xff8800, [-1305, 10.3, 750], "Neptune", 0, './src/models/textures/neptune-texture.jpg', false);
-    minis["Pluto"] = buildSphere(2.5, 0xff8800, [-750, 10, 1305], "Pluto", 0, './src/models/textures/pluto-texture.jpg', false);
-
-    let geometry = new THREE.RingGeometry(4, 6.7, 32);
-    let material = new THREE.MeshBasicMaterial({
-        color: 0xfaf8b4,
-        side: THREE.DoubleSide,
-    });
-    let saturnRings = new THREE.Mesh(geometry, material);
-    saturnRings.position.set(-1305, 10, -750);
-    saturnRings.rotation.x = 1.57;
-    saturnRings.name = "saturn rings"
-    saturnRings.visible = false;
-    minis["saturn rings"] = saturnRings;
-
-    geometry = new THREE.RingGeometry(6.16, 6.28, 32);
-    material = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        side: THREE.DoubleSide,
-    });
-    let uranusRings = new THREE.Mesh(geometry, material);
-    uranusRings.position.set(-1500, 10, 0);
-    uranusRings.rotation.y = 1.57;
-    uranusRings.name = "uranus rings";
-    minis["uranus rings"] = uranusRings;
-    for(var obj in minis){
-        state.scene.add(minis[obj]);
-    }
+    buildMinis();
 
     let loader = state.loaders.stlloader;
     loader.load('./src/models/background/mobius.stl', function (object) {
@@ -341,29 +316,30 @@ function loadSceneModels() {
         state.scene.add(state.dynamicObjs.mobius);
     });
     loadSTLModel('./src/models/puzzle/earth/Tree.stl', [1500, 0, 0], [-1.57, 0, 0], [3, 3, 3], "It's a fruit tree.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/jupiter/tornado.stl', [-750, 0, -1305], [-1.57, 0, 0], [1, 1, 1], "It's a tornado.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/mars/battery.stl', [120, 0, -180], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a battery, this might come in handy later...", "collectableObjs");
+    loadSTLModel('./src/models/puzzle/jupiter/tornado.stl', [-750, 0, -1305], [-1.57, 0, 0], [3, 3, 3], "It's a tornado.", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/mars/battery.stl', [0, 0, 1510], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a battery, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/mars/curiosity.stl', [750, 0, -1305], [-1.57, 0, 0], [0.1, 0.1, 0.1], "My battery is low and it's getting dark.", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/mars/streetlamplamp.stl', [730, 0, -1305], [-1.57, 0, 0], [1, 1, 1], "It's a solar-powered lamp.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/mars/streetlamp.stl', [730, 0, -1305], [-1.57, 0, 0], [1, 1, 1], "It's a solar-powered streetlamp.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/mercury/low-poly-face.stl', [750, 0, 1305], [-1.57, 0, 3.14], [1, 1, 1], "It appears sick.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/mercury/Thermometer.stl', [750, 41, 1275], [-1.57, 1.57, 3.34], [0.4, 0.4, 0.4], "It's a thermometer, this might come in handy later...", "collectableObjs");
+    loadSTLModel('./src/models/puzzle/mercury/Thermometer.stl', [-1527, 52, 23], [-1.57, 1.57, -1.0], [0.4, 0.4, 0.4], "It's a thermometer, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/moon/cheese-wheel.stl', [1305, 64, -760], [1.57, 0, 1.57], [4, 4, 4], "A classic cheese wheel.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/market-stall.stl', [-1305, 8, 750], [-1.57, 0, -1.57], [2.5, 2.5, 2.5], "It's a fruit stand, I might be able to buy something.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/Apple.stl', [-1312.5, 8.5, 750.5], [-1.57, 0, -1.57], [0.01, 0.01, 0.01], "A delicious looking apple.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/neptune/coin.stl', [-130, 0, 20], [-1.57, 0, -1.57], [0.025, 0.025, 0.025], "It looks like some sort of galactic coin, this might come in handy later...", "collectableObjs");
+    loadSTLModel('./src/models/puzzle/neptune/coin.stl', [1326, 0, -800], [-1.57, 0, -1.57], [0.025, 0.025, 0.025], "It looks like some sort of galactic coin, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/neptune/Grapes.stl', [-1310.9, 7.5, 750], [0, -3.14, 0], [0.025, 0.025, 0.025], "Deliciously ripe grapes.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/Pineapple.stl', [-1312.5, 8.5, 749], [-1.57, 0, -1.57], [0.05, 0.05, 0.05], "It's a pineapple, yum!", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/neptune/Strawberry.stl', [-1311.5, 8.5, 754], [-1.57, 0, 0], [0.025, 0.025, 0.025], "A single strawberry, but it is sizeable.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/pluto/bone.stl', [-320, 0, -190], [-1.57, 0, 0], [0.03, 0.03, 0.03], "It looks like a bone and you'd rather not think about where it came from. It may come in handy later...", "collectableObjs");
-    loadSTLModel('./src/models/puzzle/pluto/Puppy.stl', [-750, 0, 1305], [-1.57, 0, 0], [0.25, 0.25, 0.25], "A cute puppy. It's looking at me expectantly.", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/pluto/bone.stl', [1370, 0, 832], [-1.57, 0, 1.57], [0.03, 0.03, 0.03], "It looks like a bone and you'd rather not think about where it came from. It may come in handy later...", "collectableObjs");
+    loadSTLModel('./src/models/puzzle/pluto/Puppy.stl', [-750, 0, 1305], [-1.57, 0, 2.5], [0.25, 0.25, 0.25], "A cute puppy. It's looking at me expectantly.", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/saturn/rock-ring.stl', [-1305, 0, -750], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a circle of rocks, but one appears to be missing.", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/saturn/pebble.stl', [170, 0, -170], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a pebble, this might come in handy later...", "collectableObjs");
+    loadSTLModel('./src/models/puzzle/saturn/pebble.stl', [763, 0, -1315], [-1.57, 0, 0], [0.05, 0.05, 0.05], "It's a pebble, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/puzzle/sun/lightbulb-glass.stl', [0, 0, 1500], [-3.14, 0, 0], [1, 1, 1], "It's a lightbulb, and it seems to be touch activated... somehow...", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/sun/lightbulb-plug.stl', [0, 0, 1500], [-3.14, 0, 0], [1, 1, 1], "There is a plug, but it doesn't seem to be connected anywhere", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/uranus/cup-table.stl', [-1500, 0, 0], [-1.57, 0, 0], [2.5,2.5,2.5], "It's a table with some cups on it", "backgroundObjs");
+    loadSTLModel('./src/models/puzzle/uranus/cup-table.stl', [-1500, 0, 0], [-1.57, 0, 3.14], [2.5,2.5,2.5], "It's a table with some cups on it", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/venus/greenhouse.stl', [1305, 0, 750], [-1.57, 0, 0], [1,1,1], "It's a greenhouse with a few plants inside, one does not seem to have sprouted", "backgroundObjs");
     loadSTLModel('./src/models/puzzle/venus/Dirt.stl', [1305, 0, 750], [-1.57, 0, 0], [1, 1, 1], "There is no flower in this pot, maybe it just didn't grow?", "backgroundObjs");
-    loadSTLModel('./src/models/puzzle/venus/shovel.stl', [100, 2, 100], [1.57, 0, 0], [0.05, 0.05, 0.05], "It's a shovel, this might come in handy later...", "collectableObjs");
+    loadSTLModel('./src/models/puzzle/venus/shovel.stl', [-1311.2, 2, 738], [0, 3.14, 0], [0.02, 0.02, 0.02], "It's a shovel, this might come in handy later...", "collectableObjs");
     loadSTLModel('./src/models/denizen/Denizen-body.stl', [0, 2.5, -800], [-1.57, 0, 0], [0.25, 0.25, 0.25], "torso", "denizen");
     loadSTLModel('./src/models/denizen/Denizen-feet.stl', [0, 0, -800], [-1.57, 0, 0], [0.25, 0.25, 0.25], "feet", "denizen");
     loadSTLModel('./src/models/denizen/Denizen-hands.stl', [0, 2.5, -800], [-1.57, 0, 0], [0.25, 0.25, 0.25], "hands", "denizen");
@@ -377,16 +353,41 @@ function loadSTLModel(path, position, rotation, scale, name, group) {
         if(group == "denizen" && name == "head"){
             object.center();
         }
-        let material = new THREE.MeshNormalMaterial();
+        let material;
+        if (name == "It's a lightbulb, and it seems to be touch activated... somehow..."){
+            material = new THREE.MeshBasicMaterial({
+                color: 0xFFFFFF,
+            });
+        } else {
+            material = new THREE.MeshNormalMaterial();
+        }
+
         let geometry = object;
         let model = new THREE.Mesh(geometry, material);
         model.position.set(position[0], position[1], position[2]);
         model.rotation.set(rotation[0], rotation[1], rotation[2]);
         model.scale.set(scale[0], scale[1], scale[2]);
         model.name = name;
+
+        if (name == "It's a solar-powered lamp."){
+            let litLamp = model.clone();
+            litLamp.material = new THREE.MeshBasicMaterial({
+                color: 0xFFFFFF,
+            });
+            litLamp.name = "A lit lamp.";
+            litLamp.visible = false;
+            state.backgroundObjs["A lit lamp."] = litLamp;
+            state.scene.add(state.backgroundObjs["A lit lamp."]);
+        }
+
+        if (name == "It's a lightbulb, and it seems to be touch activated... somehow..."){
+            model.visible = false;
+        }
+
         let collection = state[group];
         collection[name] = model;
         state.scene.add(collection[name]);
+
         updateLoadingBar();
     });
 }
@@ -411,8 +412,11 @@ function objectInteractionHandler(){
     Object.values(state.spaceObjects).forEach((obj) => {
         let dis = playerPosition.distanceTo(obj.position) - obj.geometry.parameters.radius;
         if (dis < 15) {
-            // change based on if piece has been collected
-            closestMes = "A missing piece of the solar system! This appears to be where " + obj.name + " should go...";
+            if(state.playerInv.indexOf(obj.name) == -1){
+                closestMes = "A missing piece of the solar system! This appears to be where " + obj.name + " should go...";
+            } else {
+                closestMes = "I have already collected " + obj.name;
+            }
         }
     })
     let closestDis = 500;
@@ -437,7 +441,11 @@ function objectInteractionHandler(){
         }
     })
     Object.values(state.collectableObjs).forEach((obj) => {
-        let dis = playerPosition.distanceTo(obj.position); 
+        let pos = obj.position;
+        if (obj.name == "It's a thermometer, this might come in handy later..."){
+            pos = new THREE.Vector3(-1526, 80, 4.5);
+        }
+        let dis = playerPosition.distanceTo(pos); 
         if (dis < 15 && obj.visible != false) {
             closestMes = obj.name;
             puzzlePiece = true;
@@ -574,12 +582,12 @@ function checkForPlacements(obj, defaultMessage=""){
         case "A cute puppy. It's looking at me expectantly.":
             if (state.playerInv.indexOf("Bone") != -1){
                 let child = state.collectableObjs["It looks like a bone and you'd rather not think about where it came from. It may come in handy later..."];
-                child.position.x = -320;
-                child.position.y = 0;
-                child.position.z = -190;
+                child.position.x = -751;
+                child.position.y = 6;
+                child.position.z = 1299;
                 child.rotation.x = -1.57;
                 child.rotation.y = 0;
-                child.rotation.z = 0;
+                child.rotation.z = 2.75;
                 child.visible = true;
                 state.scene.add(child);
                 messageGen = "Good boy";
@@ -625,6 +633,10 @@ function checkForPlacements(obj, defaultMessage=""){
         case "It's a lightbulb, and it seems to be touch activated... somehow..." || "There is a plug, but it doesn't seem to be connected anywhere":
             state.scene.children.forEach(child => {
                 if (child.name == "the Sun") {
+                    child.visible = true;
+                }
+
+                if (child.name == "It's a lightbulb, and it seems to be touch activated... somehow...") {
                     child.visible = true;
                 }
             })
@@ -719,6 +731,50 @@ function buildSolarSystem(){
     }
 }
 
+function buildMinis(){
+    let minis = state.miniSpaceObjs;
+    minis["the Sun"] = buildSphere(2.5, 0xff8800, [0, 10, 1483], "the Sun", 0, './src/models/textures/sun-texture.jpg', false);
+    minis["Mercury"] = buildSphere(2.5, 0xff8800, [751, 23, 1255], "Mercury", 0, './src/models/textures/mercury-texture.jpg', false);
+    minis["Venus"] = buildSphere(2.5, 0xff8800, [1384, 25, 716], "Venus", 0, './src/models/textures/venus-texture.jpg', false);
+    minis["Earth"] = buildSphere(6, 0xff8800, [1550, 70, 83], "Earth", 0, './src/models/textures/earth-texture.jpg');
+    minis["the Moon"] = buildSphere(4, 0xff8800, [1255, 10, -887], "the Moon", 0, './src/models/textures/moon-texture.jpg');
+    minis["Mars"] = buildSphere(2.5, 0xff8800, [757, 11, -1292], "Mars", 0, './src/models/textures/mars-texture.jpg', false);
+    minis["Jupiter"] = buildSphere(2.5, 0xff8800, [-750, 10, -1305], "Jupiter", 0, './src/models/textures/jupiter-texture.jpg');
+    minis["Saturn"] = buildSphere(2.5, 0xff8800, [-1303, 5, -752], "Saturn", 0, './src/models/textures/saturn-texture.jpg', false);
+    let unflipped = buildSphere(2.5, 0xff8800, [-1543, 62, 80], "Uranus", 0, './src/models/textures/uranus-texture.jpg');
+    unflipped.rotation.z = 1.57;
+    minis["Uranus"] = unflipped;
+    minis["Neptune"] = buildSphere(2, 0xff8800, [-1305, 10.3, 750], "Neptune", 0, './src/models/textures/neptune-texture.jpg', false);
+    minis["Pluto"] = buildSphere(2.5, 0xff8800, [-751.5, 11, 1306], "Pluto", 0, './src/models/textures/pluto-texture.jpg', false);
+    minis["Pluto"].rotation.y = 1.57;
+
+    let geometry = new THREE.RingGeometry(4, 6.7, 32);
+    let material = new THREE.MeshBasicMaterial({
+        color: 0xfaf8b4,
+        side: THREE.DoubleSide,
+    });
+    let saturnRings = new THREE.Mesh(geometry, material);
+    saturnRings.position.set(-1303, 5, -752);
+    saturnRings.rotation.x = 1.57;
+    saturnRings.name = "saturn rings"
+    saturnRings.visible = false;
+    minis["saturn rings"] = saturnRings;
+
+    geometry = new THREE.RingGeometry(6.16, 6.28, 32);
+    material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        side: THREE.DoubleSide,
+    });
+    let uranusRings = new THREE.Mesh(geometry, material);
+    uranusRings.position.set(-1543, 62, 80);
+    uranusRings.rotation.y = 1.57;
+    uranusRings.name = "uranus rings";
+    minis["uranus rings"] = uranusRings;
+    for (var obj in minis) {
+        state.scene.add(minis[obj]);
+    }
+}
+
 function collectSpaceObject(objName){
     // remove the original planet grid
     state.scene.remove(state.spaceObjects[objName]);
@@ -743,6 +799,14 @@ function collectSpaceObject(objName){
     switch (objName) {
         case "the Sun":
             state.spaceObjects["the Sun"] = buildSphere(556.8, 0xff8800, [0, 556.8, 0], "the Sun", 0, './src/models/textures/sun-texture.jpg');
+            state.scene.children.forEach(child => {
+                if (child.name == "A lit lamp.") {
+                    child.visible = true;
+                }
+                if (child.name == "It's a solar-powered lamp.") {
+                    child.visible = false;
+                }
+            })
             break;
         case "Mercury":
             state.spaceObjects["Mercury"] = buildSphere(1.9516, 0xbb9665, [0, 11.9516, 200], "Mercury", 0, './src/models/textures/mercury-texture.jpg');
@@ -798,6 +862,9 @@ function collectSpaceObject(objName){
 
 function rotateSceneObjects(){
     state.dynamicObjs.mobius.rotation.z += 0.005;
+
+    let tornado = state.backgroundObjs["It's a tornado."]
+    tornado.rotation.z += 0.02;
 
     // axis rotation
     state.spaceObjects["the Sun"].rotation.y += 0.0005;

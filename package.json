@@ -3,9 +3,10 @@
   "version": "0.3.2",
   "description": "",
   "scripts": {
-    "start": "webpack-dev-server --mode development",
+    "start": "webpack --mode production",
     "prebuild": "rimraf ./build && mkdir ./build",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "dev": "webpack-dev-server --mode development"
   },
   "dependencies": {
     "webpack-cli": "^3.3.2"
